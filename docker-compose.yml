@@ -1,7 +1,30 @@
 version: '3'
 services:
-  reverseproxy:
-#   image: reverseproxy
+  
+  docker-nginx:
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    restart: always
+    image: docker-nginx
+    container_name: docker-nginx
+    hostname: docker-apache
+    networks:
+      - reverseproxy
+  
+  docker-apache:
+    build:
+      context: ./apache
+      dockerfile: Dockerfile
+    #image: httpd:alpine
+    restart: always
+    image: docker-apache
+    container_name: docker-apache
+    hostname: docker-apache
+    networks:
+      - reverseproxy
+  
+  docker-reverseproxy:
     build:
       context: ./reverseproxy
       dockerfile: Dockerfile
@@ -9,21 +32,11 @@ services:
       - 8080:8080
       - 8081:8081
     restart: always
- 
-  nginx:
-    depends_on:
+    image: docker-reverseproxy
+    container_name: docker-reverseproxy
+    hostname: docker-reverseproxy 
+    networks:
       - reverseproxy
-    #image: nginx:alpine
-    build:
-      context: ./nginx
-      dockerfile: Dockerfile
-    restart: always
- 
-  apache:
-    depends_on:
-      - reverseproxy
-    build:
-      context: ./apache
-      dockerfile: Dockerfile
-    #image: httpd:alpine
-    restart: always
+  
+networks:
+  reverseproxy:
